@@ -609,15 +609,15 @@
   </div>
 </section>
 
-<!-- SimpleLightbox initialization with slideshow -->
+<!-- SimpleLightbox initialization with captions -->
 <script>
   var lightbox = new SimpleLightbox('.lightbox', {
-    captionsData: 'title', 
-    captionDelay: 250,
-    animationSpeed: 500,
-    loop: true,           
-    autoplay: true,       
-    autoplaySpeed: 3000,  
+    captionsData: 'data-title',  // Ensure it's pulling from the correct attribute
+    captionDelay: 250,           // Delay before the caption shows up
+    animationSpeed: 500,         // Speed of the slideshow transition
+    loop: true,                  // Loop through images
+    autoplay: true,              // Enable autoplay
+    autoplaySpeed: 3000,         // Set autoplay interval to 3 seconds
   });
 </script>
 
