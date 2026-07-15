@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Atkinson Lab · Baylor College of Medicine</title>
+<meta name="description" content="The Atkinson Lab at Baylor College of Medicine develops statistical genomics methods that account for the full range of human population structure and genetic variation, with a focus on diverse and admixed ancestries." />
+<link rel="icon" type="image/x-icon" href="dist/assets/favicon.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ink:#1f2a23;
+  --paper:#ffffff;
+  --surface:#ffffff;
+  --line:#e8e9e6;
+  --brand:#2d5a43;
+  --brand-2:#4c8265;
+  --muted:#5b625d;
+  --muted-2:#8a8f8a;
+  /* ancestry-tract categorical palette (the signature) */
+  --t1:#c67b3f;
+  --t2:#4c8265;
+  --t3:#e0b13f;
+  --t4:#a85d6e;
+  --t5:#5b7d9a;
+  --t6:#b3a892;
+  --maxw:1120px;
+  --radius:14px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  font-size:17px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block;}
+a{color:var(--brand);text-decoration:none;}
+a:hover{text-decoration:underline;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif;font-weight:600;line-height:1.1;letter-spacing:-.01em;margin:0;}
+p{margin:0 0 1em;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+.mono{font-family:"IBM Plex Mono",monospace;}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:12.5px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--brand-2);
+  margin:0 0 14px;
+}
+:focus-visible{outline:2.5px solid var(--brand-2);outline-offset:3px;border-radius:4px;}
+
+/* ---------- ancestry-tract band (signature) ---------- */
+.karyo{display:flex;flex-direction:column;gap:7px;}
+.chrom{display:flex;height:11px;border-radius:6px;overflow:hidden;background:var(--line);}
+.chrom span{height:100%;}
+.divider{margin:0;}
+.divider .chrom{height:6px;border-radius:4px;}
+.legend{display:flex;flex-wrap:wrap;gap:16px 22px;margin-top:22px;}
+.legend span{display:inline-flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);letter-spacing:.02em;}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block;}
+
+/* ---------- nav ---------- */
+header.nav{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .3s,box-shadow .3s,border-color .3s;border-bottom:1px solid transparent;}
+header.nav.scrolled{background:rgba(251,251,249,.92);backdrop-filter:blur(10px);border-bottom-color:var(--line);}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:70px;}
+.brand{font-family:"Fraunces",serif;font-weight:600;font-size:20px;color:var(--ink);letter-spacing:-.01em;}
+.brand:hover{text-decoration:none;}
+.brand b{color:inherit;font-weight:inherit;}
+nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0;align-items:center;}
+nav a{color:var(--ink);font-size:14.5px;font-weight:500;}
+nav a:hover{color:var(--brand);text-decoration:none;}
+.nav-cta{background:var(--brand);color:#fff !important;padding:9px 18px;border-radius:999px;font-size:14px;}
+.nav-cta:hover{background:var(--ink);text-decoration:none;}
+.menu-btn{display:none;background:none;border:0;cursor:pointer;padding:8px;color:var(--ink);}
+.menu-btn svg{display:block;}
+
+/* ---------- hero ---------- */
+.hero{padding:150px 0 70px;}
+.hero-grid{display:block;}
+.hero h1{font-size:clamp(42px,6.2vw,74px);font-weight:600;margin:0 0 28px;max-width:20ch;}
+.hero h1 em{font-style:italic;color:var(--brand);}
+.hero p.lede{font-size:20px;color:var(--muted);max-width:68ch;margin:0 0 34px;}
+.btns{display:flex;gap:14px;flex-wrap:wrap;}
+.btn{display:inline-block;padding:13px 26px;border-radius:999px;font-weight:500;font-size:15px;}
+.btn-primary{background:var(--brand);color:#fff;}
+.btn-primary:hover{background:var(--ink);text-decoration:none;}
+.btn-ghost{border:1.5px solid var(--line);color:var(--ink);background:var(--surface);}
+.btn-ghost:hover{border-color:var(--brand);color:var(--brand);text-decoration:none;}
+.hero-art{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px 22px;box-shadow:0 20px 50px -30px rgba(20,32,58,.35);}
+.hero-art .cap{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.06em;color:var(--muted-2);margin-bottom:16px;display:flex;justify-content:space-between;}
+
+/* ---------- generic section ---------- */
+section{padding:88px 0;}
+.sec-head{max-width:60ch;margin-bottom:44px;}
+.sec-head h2{font-size:clamp(28px,3.4vw,40px);margin-bottom:18px;}
+.sec-head p{color:var(--muted);font-size:18px;margin:0;}
+
+/* about */
+#about{background:var(--brand);color:#fff;}
+#about .eyebrow{color:#a9d6bd;}
+#about h2{color:#fff;}
+#about .sec-head p{color:rgba(255,255,255,.82);}
+.focus-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:12px;}
+.focus{border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:22px 20px;background:rgba(255,255,255,.04);}
+.focus .n{font-family:"IBM Plex Mono",monospace;font-size:12px;color:#a9d6bd;letter-spacing:.1em;}
+.focus .ic{height:26px;width:auto;color:#a9d6bd;display:block;margin-bottom:16px;}
+.focus h3{color:#fff;font-size:19px;margin:14px 0 8px;}
+.focus p{color:rgba(255,255,255,.8);font-size:14.5px;margin:0;}
+#about .divider .chrom{background:rgba(255,255,255,.15);}
+
+/* research */
+.track{display:grid;grid-template-columns:340px 1fr;gap:44px;align-items:center;padding:38px 0;border-top:1px solid var(--line);}
+.track:first-of-type{border-top:0;}
+.track img{border-radius:12px;border:1px solid var(--line);background:#fff;width:100%;aspect-ratio:16/11;object-fit:cover;}
+.track .n{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--brand-2);letter-spacing:.12em;}
+.track h3{font-size:24px;margin:10px 0 12px;}
+.track p{color:var(--muted);margin:0;font-size:16px;}
+.track:nth-child(even) .media{order:2;}
+
+/* team */
+.pi{display:grid;grid-template-columns:280px 1fr;gap:40px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:34px;margin-bottom:52px;}
+.pi img{border-radius:12px;width:100%;object-fit:cover;aspect-ratio:4/5;}
+.pi .role{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.1em;color:var(--brand-2);text-transform:uppercase;margin:6px 0 14px;}
+.pi h3{font-size:30px;}
+.pi p{color:var(--muted);font-size:16px;}
+.pi .links{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;font-size:14px;font-family:"IBM Plex Mono",monospace;}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s;}
+.card:hover{transform:translateY(-4px);box-shadow:0 22px 44px -28px rgba(20,32,58,.4);}
+.card .ph{aspect-ratio:1/1;overflow:hidden;background:var(--brand-soft,#eef0ed);}
+.card .ph img{width:100%;height:100%;object-fit:cover;}
+.card .body{padding:20px 20px 22px;flex:1;display:flex;flex-direction:column;}
+.card h4{font-size:20px;margin-bottom:4px;}
+.card .role{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-2);margin-bottom:12px;}
+.card details{margin-top:auto;}
+.card details p{font-size:14px;color:var(--muted);line-height:1.6;margin:12px 0 0;}
+.card summary{list-style:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--brand);font-family:"IBM Plex Mono",monospace;letter-spacing:.03em;}
+.card summary::-webkit-details-marker{display:none;}
+.card summary::after{content:" +";}
+.card details[open] summary::after{content:" −";}
+.subhead{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:60px 0 26px;display:flex;align-items:center;gap:16px;}
+.subhead::after{content:"";flex:1;height:1px;background:var(--line);}
+.grid.alumni{grid-template-columns:repeat(4,1fr);gap:22px;}
+.grid.alumni .card h4{font-size:17px;}
+.grid.alumni .card .body{padding:16px 16px 18px;}
+
+/* publications */
+#pubs{background:#f6f7f5;}
+.pub-note{color:var(--muted);font-size:15px;max-width:60ch;margin-bottom:36px;}
+.pub{display:grid;grid-template-columns:64px 1fr;gap:22px;padding:20px 0;border-top:1px solid var(--line);font-size:15.5px;}
+.pub:first-of-type{border-top:0;}
+.pub .yr{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--brand-2);font-weight:500;}
+.pub .cite{color:var(--ink);line-height:1.55;}
+.pub .cite i{color:var(--muted);}
+.pub .cite u{text-decoration:none;border-bottom:2px solid var(--t3);}
+.pub .cite a{font-family:"IBM Plex Mono",monospace;font-size:12.5px;white-space:nowrap;}
+
+/* news */
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.gallery figure{margin:0;border-radius:12px;overflow:hidden;position:relative;cursor:pointer;border:1px solid var(--line);}
+.gallery img{width:100%;height:240px;object-fit:cover;transition:transform .4s;}
+.gallery figure:hover img{transform:scale(1.05);}
+.gallery figcaption{position:absolute;inset:auto 0 0 0;padding:16px 14px 12px;font-size:13px;line-height:1.45;color:#fff;background:linear-gradient(to top,rgba(10,16,30,.88),transparent);opacity:0;transition:opacity .3s;}
+.gallery figure:hover figcaption,.gallery figure:focus-within figcaption{opacity:1;}
+
+/* lightbox */
+.lb{position:fixed;inset:0;background:rgba(10,16,30,.92);display:none;align-items:center;justify-content:center;z-index:100;padding:28px;flex-direction:column;gap:16px;}
+.lb.open{display:flex;}
+.lb img{max-width:90vw;max-height:78vh;border-radius:10px;}
+.lb p{color:#fff;max-width:60ch;text-align:center;font-size:15px;margin:0;}
+.lb button{position:absolute;top:20px;right:24px;background:none;border:0;color:#fff;font-size:34px;cursor:pointer;line-height:1;}
+
+/* contact */
+#contact{background:var(--brand);color:#fff;}
+#contact .eyebrow{color:#a9d6bd;}
+#contact h2{color:#fff;}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;}
+#contact p{color:rgba(255,255,255,.85);}
+#contact a{color:#fff;border-bottom:1px solid rgba(255,255,255,.5);}
+#contact a:hover{border-color:#fff;text-decoration:none;}
+.contact-meta{display:grid;gap:24px;}
+.contact-meta .item .lbl{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#a9d6bd;margin-bottom:6px;}
+.join-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius);padding:30px;}
+.join-card h3{color:#fff;font-size:24px;margin-bottom:14px;}
+
+/* footer */
+footer.site{background:var(--ink);color:rgba(255,255,255,.6);padding:30px 0;font-size:13.5px;}
+.footer-in{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+footer.site a{color:rgba(255,255,255,.8);}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+/* responsive */
+@media(max-width:900px){
+  nav ul{display:none;}
+  .menu-btn{display:block;}
+  nav.open ul{display:flex;position:absolute;top:70px;left:0;right:0;flex-direction:column;background:var(--paper);border-bottom:1px solid var(--line);padding:20px 24px;gap:18px;align-items:flex-start;}
+  .hero-grid{grid-template-columns:1fr;gap:40px;}
+  .hero{padding:120px 0 56px;}
+  .focus-grid{grid-template-columns:repeat(2,1fr);}
+  .track{grid-template-columns:1fr;gap:20px;}
+  .track:nth-child(even) .media{order:0;}
+  .pi{grid-template-columns:1fr;}
+  .pi img{max-width:240px;}
+  .grid{grid-template-columns:repeat(2,1fr);}
+  .grid.alumni{grid-template-columns:repeat(2,1fr);}
+  .gallery{grid-template-columns:repeat(2,1fr);}
+  .contact-grid{grid-template-columns:1fr;gap:34px;}
+}
+@media(max-width:560px){
+  body{font-size:16px;}
+  .focus-grid,.grid,.grid.alumni,.gallery{grid-template-columns:1fr;}
+  .pub{grid-template-columns:1fr;gap:6px;}
+  section{padding:64px 0;}
+}
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto !important;}
+  .reveal{opacity:1;transform:none;transition:none;}
+  .card:hover{transform:none;}
+  .gallery figure:hover img{transform:none;}
+}
+
+/* ---------- team member rows (full bios, OG-faithful) ---------- */
+.member{display:grid;grid-template-columns:200px 1fr;gap:34px;align-items:start;padding:30px 0;border-top:1px solid var(--line);}
+.member:first-of-type{border-top:0;}
+.member img{border-radius:12px;width:100%;aspect-ratio:4/5;object-fit:cover;background:#eef0ed;}
+.member h4{font-size:23px;}
+.member .role{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-2);margin:6px 0 12px;}
+.member p{color:var(--muted);font-size:15.5px;line-height:1.65;margin:0;}
+@media(max-width:760px){.member{grid-template-columns:1fr;gap:16px;}.member img{max-width:200px;}}
+</style>
+</head>
+<body id="top">
+
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">The Atkinson <b>Lab</b></a>
+    <nav id="navmenu">
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#research">Research</a></li>
+        <li><a href="#team">Team</a></li>
+        <li><a href="#pubs">Publications</a></li>
+        <li><a href="#news">Lab Life</a></li>
+        <li><a class="nav-cta" href="#contact">Join us</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      <p class="eyebrow">Baylor College of Medicine &middot; Statistical &amp; Population Genomics</p>
+      <h1>Welcome to the <em>Atkinson Lab</em> at Baylor College of Medicine!</h1>
+      <p class="lede">The Atkinson Lab develops statistical genomics methods that account for the full range of human population structure and genetic variation. We use globally representative genomic datasets and cutting-edge computational approaches to study complex neuropsychiatric traits, with a particular focus on populations with admixed ancestry. Our tools are broadly applicable across phenotypes and cohorts, supporting more accurate and generalizable inferences in human genetics. We also investigate the demographic and evolutionary history of human populations to inform downstream analytic methods.</p>
+      <div class="btns">
+        <a class="btn btn-primary" href="#research">Explore our research</a>
+        <a class="btn btn-ghost" href="#contact">Join the lab</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>What We Work On</h2>
+      <p>Our lab investigates a range of topics in statistical and human genetics to improve the accuracy and applicability of genomic studies across globally representative populations. We have three primary research tracks: (1) applied and analytic work in statistical genetics, (2) investigations into human population structure and evolutionary history, and (3) development of computational methods and tools for large-scale genomic analysis.</p>
+    </div>
+    <div class="divider reveal"><div class="chrom" id="div1"></div></div>
+    <div class="focus-grid reveal" style="margin-top:40px;">
+      <div class="focus"><svg class="ic" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M416 0c17.7 0 32 14.3 32 32c0 59.8-30.3 107.5-69.4 146.6c-28 28-62.5 53.5-97.3 77.4l-2.5 1.7c-11.9 8.1-23.8 16.1-35.5 23.9c0 0 0 0 0 0s0 0 0 0s0 0 0 0l-1.6 1c-6 4-11.9 7.9-17.8 11.9c-20.9 14-40.8 27.7-59.3 41.5l118.5 0c-9.8-7.4-20.1-14.7-30.7-22.1l7-4.7 3-2c15.1-10.1 30.9-20.6 46.7-31.6c25 18.1 48.9 37.3 69.4 57.7C417.7 372.5 448 420.2 448 480c0 17.7-14.3 32-32 32s-32-14.3-32-32L64 480c0 17.7-14.3 32-32 32s-32-14.3-32-32c0-59.8 30.3-107.5 69.4-146.6c28-28 62.5-53.5 97.3-77.4c-34.8-23.9-69.3-49.3-97.3-77.4C30.3 139.5 0 91.8 0 32C0 14.3 14.3 0 32 0S64 14.3 64 32l320 0c0-17.7 14.3-32 32-32zM338.6 384l-229.2 0c-10.1 10.6-18.6 21.3-25.5 32l280.2 0c-6.8-10.7-15.3-21.4-25.5-32zM109.4 128l229.2 0c10.1-10.7 18.6-21.3 25.5-32L83.9 96c6.8 10.7 15.3 21.3 25.5 32zm55.4 48c18.4 13.8 38.4 27.5 59.3 41.5c20.9-14 40.8-27.7 59.3-41.5l-118.5 0z"/></svg><div class="n">01</div><h3>Statistical Genetics</h3></div>
+      <div class="focus"><svg class="ic" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true"><path d="M256 64l128 0 0 64-128 0 0-64zM240 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l48 0 0 32L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0 0 32-48 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l160 0c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48l-48 0 0-32 256 0 0 32-48 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l160 0c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48l-48 0 0-32 96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-256 0 0-32 48 0c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48L240 0zM96 448l0-64 128 0 0 64L96 448zm320-64l128 0 0 64-128 0 0-64z"/></svg><div class="n">02</div><h3>Population Genetics</h3></div>
+      <div class="focus"><svg class="ic" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M184 0c30.9 0 56 25.1 56 56l0 400c0 30.9-25.1 56-56 56c-28.9 0-52.7-21.9-55.7-50.1c-5.2 1.4-10.7 2.1-16.3 2.1c-35.3 0-64-28.7-64-64c0-7.4 1.3-14.6 3.6-21.2C21.4 367.4 0 338.2 0 304c0-31.9 18.7-59.5 45.8-72.3C37.1 220.8 32 207 32 192c0-30.7 21.6-56.3 50.4-62.6C80.8 123.9 80 118 80 112c0-29.9 20.6-55.1 48.3-62.1C131.3 21.9 155.1 0 184 0zM328 0c28.9 0 52.6 21.9 55.7 49.9c27.8 7 48.3 32.1 48.3 62.1c0 6-.8 11.9-2.4 17.4c28.8 6.2 50.4 31.9 50.4 62.6c0 15-5.1 28.8-13.8 39.7C493.3 244.5 512 272.1 512 304c0 34.2-21.4 63.4-51.6 74.8c2.3 6.6 3.6 13.8 3.6 21.2c0 35.3-28.7 64-64 64c-5.6 0-11.1-.7-16.3-2.1c-3 28.2-26.8 50.1-55.7 50.1c-30.9 0-56-25.1-56-56l0-400c0-30.9 25.1-56 56-56z"/></svg><div class="n">03</div><h3>Psychiatric Genetics</h3></div>
+      <div class="focus"><svg class="ic" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M352 256c0 22.2-1.2 43.6-3.3 64l-185.3 0c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64l185.3 0c2.2 20.4 3.3 41.8 3.3 64zm28.8-64l123.1 0c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64l-123.1 0c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32l-116.7 0c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0l-176.6 0c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7zm-209 0L18.6 160C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192l123.1 0c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64L8.1 320C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6l176.6 0c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352l116.7 0zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6l116.7 0z"/></svg><div class="n">04</div><h3>Collaborative Research</h3></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Research Areas</h2>
+    </div>
+    <div class="track reveal">
+      <div class="media"><img src="dist/assets/img/portfolio/thumbnails/TractorIcon.jpg" alt="Tractor local-ancestry method icon" /></div>
+      <div><div class="n">01 / METHODS</div><h3>Method Development for Ancestry-Aware Genomic Analyses</h3><p>Nearly 80% of genome-wide association studies (GWAS) to date have focused on individuals of European ancestry. This has created methodological gaps in the analysis of admixed individuals—those with genomic contributions from multiple ancestral backgrounds—whose genomes present additional modeling challenges. Our lab develops statistical tools specifically designed to improve the analysis of complex traits in admixed populations, with the goal of enabling broader applicability of genomic findings, particularly in the context of mental health genetics.</p></div>
+    </div>
+    <div class="track reveal">
+      <div class="media"><img src="dist/assets/img/portfolio/thumbnails/FOXP2_graphicalAbstract.jpg" alt="FOXP2 evolutionary genomics graphical abstract" /></div>
+      <div><div class="n">02 / EVOLUTION</div><h3>Characterizing Human Evolution and Population Structure Using Global Genomic Data</h3><p>Understanding the evolutionary and demographic history of human populations is critical for interpreting patterns of genetic variation and for developing appropriate statistical and medical genomic tools. Our lab investigates these foundational aspects using ancestrally informative evolutionary statistics and globally representative DNA datasets. By characterizing the forces that shape genetic variation in key genes—including those relevant to brain function—we aim to inform method development for downstream genomic analyses across a range of populations and phenotypes.</p></div>
+    </div>
+    <div class="track reveal">
+      <div class="media"><img src="dist/assets/img/portfolio/thumbnails/Mantattan-PTSD.jpg" alt="Manhattan plot from a psychiatric GWAS" /></div>
+      <div><div class="n">03 / PSYCHIATRIC</div><h3>Understanding Genetic Contributors to Psychiatric Traits Across Global Populations</h3><p>Psychiatric disorders are a leading global contributor to disability and represent a major focus of human genetic research. Our lab collaborates with international consortia to develop and apply statistical methods that account for population structure in the analysis of psychiatric phenotypes. These efforts aim to improve the resolution and generalizability of genetic findings related to mental health across globally representative cohorts.</p></div>
+    </div>
+    <div class="track reveal">
+      <div class="media"><img src="dist/assets/img/portfolio/thumbnails/Consortia.jpg" alt="Global genomics consortia collaboration map" /></div>
+      <div><div class="n">04 / RESOURCES</div><h3>Building Representative Genomic Resources for Complex Trait Research</h3><p>Advancing statistical genetics requires large-scale genomic datasets that reflect global population structure and phenotypic variation. Our lab plays a leadership role in several major international collaborations—including the Psychiatric Genomics Consortium (PTSD working group), Latin American Trans-Ancestry Initiative for OCD, and the Latin American Genomics Consortium (LAGC)—which collectively support the development of more representative resources for gene discovery. These efforts also provide trainees with valuable opportunities to work with richly phenotyped, globally relevant cohorts.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow">The people</p>
+      <h2>Team</h2>
+    </div>
+
+    <div class="pi reveal">
+      <img src="dist/assets/img/portfolio/fullsize/Elizabeth_0027.jpg" alt="Dr. Elizabeth Atkinson" />
+      <div>
+        <h3>Elizabeth Atkinson</h3>
+        <div class="role">Principal Investigator</div>
+        <div class="links">
+          <a href="https://scholar.google.com/citations?user=NCfvK4UAAAAJ&hl=en">Google Scholar</a>
+          <a href="https://www.bcm.edu/research/faculty-labs/elizabeth-atkinson-lab">BCM profile</a>
+          <a href="https://twitter.com/egatkinson">X @egatkinson</a>
+          <a href="mailto:elizabeth.atkinson@bcm.edu">Email</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid reveal">
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Astrid.jpg" alt="Astrid Manuel" /></div>
+        <div class="body"><h4>Astrid Manuel</h4><div class="role">Postdoctoral Fellow</div>
+          <details><summary>Read bio</summary><p>As a postdoctoral associate in Dr. Elizabeth Atkinson’s lab, Astrid’s current research goals involve the development of statical genomics methods for studying complex traits in heterogeneous populations in biomedical research. She aims to apply these methods to advance pharmacogenomics and personalized medicine applications. Astrid earned her PhD from the University of Texas Health Science Center (UTHealth) in Houston, TX. The title of her PhD thesis was “Translational Bioinformatics Approaches for Decoding Mechanisms and Developing Drug Repositioning Strategies in Multiple Sclerosis”. During her PhD studies, she was a Predoctoral Fellow of the National Library of Medicine (NLM) Training Program in Biomedical Informatics and Data Science (T15LM007093). In the Atkinson Lab, Astrid seeks to extend her bioinformatics expertise to the domain of statistical population-level genomics and pharmacogenomics. During her free time, she enjoys drawing, visiting art museums, and indoor rock climbing with friends.</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Erik.jpg" alt="Erik Stricker" /></div>
+        <div class="body"><h4>Erik Stricker</h4><div class="role">Postdoctoral Fellow</div>
+          <details><summary>Read bio</summary><p>Erik is a postdoctoral research fellow, retrovirologist and cancer researcher currently at Baylor College of Medicine. Besides his interest in human endogenous retroviruses (HERVs) - which comprise 8% of the human genome - and their relationship to cancer, he is a passionate teacher of science and science-unrelated topics. He has been fortunate to have received the chance to acquire training at leading universities in Germany and frequently share his expertise when teaching graduate and undergraduate students. He is the recipient of multiple teaching awards and enjoys pushing the boundaries of current knowledge through research and student projects.</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Estela.JPG" alt="Estela Maria Bruxel" /></div>
+        <div class="body"><h4>Estela Maria Bruxel</h4><div class="role">Former Postdoctoral Fellow</div>
+          <details><summary>Read bio</summary><p>Estela Maria Bruxel is a postdoctoral research fellow in Dr. Elizabeth Atkinson’s lab. She received her master’s and Ph.D. from the Federal University of Rio Grande do Sul (Brazil), studying genetic susceptibility and pharmacogenetics of Attention Deficit/Hyperactivity Disorder. At the University of Campinas, also in Brazil, she has developed a project to identify susceptibility loci for mesial temporal lobe epilepsy (MTLE) through integrating analyses of eQTL and GWAS data and prediction algorithms to predict medication response. Additionally, she formerly received a fellowship to work in Atkinson lab to develop bioinformatic ancestry-informed techniques to study Brazilian admixed samples and improve GWAS analysis. She is a member of the Latin America Genetic Consortium and is the liaison for the Psychiatry Genetic Consortium Outreach Committee. She hopes to improve the understanding of the genetic contributors to neuropsychiatric and neurological diseases and create strategies for precision medicine treatment for such patients. Out of the lab, she loves riding mountain bike and exploring parks.</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Grace.JPG" alt="Grace Tietz" /></div>
+        <div class="body"><h4>Grace Tietz</h4><div class="role">Graduate Student</div>
+          <details><summary>Read bio</summary><p>Grace Tietz is a Genetics & Genomics PhD student in the lab whose primary project aims to improve genetic testing for cardiovascular disease across populations. She approaches this challenge through the lens of population-genetics and integrates information on rare variants and polygenic burden to optimize performance across ancestries. Complimenting this work, she is evaluating patient perspectives to genetic testing and is developing polygenic approaches to prioritize genetic sequencing in individuals of the Undiagnosed Diseases Network. Beyond her research, Grace is interested in genetics’ role in society, and ways that policies and healthcare practices reflect our collective perspectives on it.</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Placeholder.jpg" alt="Hatoon Al Ali" /></div>
+        <div class="body"><h4>Hatoon Al Ali</h4><div class="role">Graduate Student</div>
+          <details><summary>Read bio</summary><p>Hatoon is a PhD student in the Genetics and Genomics program at Baylor College of Medicine. She is working on developing methods for detecting epistasis and genetic interaction in rare and common diseases using population genetics approaches. She is also interested in the incorporation of Arab/Middle Eastern populations in genomic studies. Before joining the lab, Hatoon graduated from King Abdullah University of Science and Technology with a Masters in Bioinformatics and a Bachelors in Clinical laboratory sciences from King Saud University. Outside the lab she enjoys hiking, gardening, and building with mud!</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Helen.JPG" alt="Yi-Sian "Helen" Lin" /></div>
+        <div class="body"><h4>Yi-Sian "Helen" Lin</h4><div class="role">Graduate Student</div>
+          <details><summary>Read bio</summary><p>Helen is a PhD student in the Atkinson Lab and is in the Genetics and Genomics program at Baylor College of Medicine. She is originally from Taiwan. She completed her MS degree in Neuroscience at National Taiwan University and was a research assistant in Bioinformatics at National Yang Ming Chao Tung University. Her research interests are optimizing genetic risk prediction for neuropsychiatric conditions across populations, pharmacogenomics, and gene x environment interactions in disease prediction. Outside the lab, she enjoys playing groovy music, watching vlogs featuring cute kids or dogs, and immersing herself in nature.</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/nirav.jpeg" alt="Nirav Shah" /></div>
+        <div class="body"><h4>Nirav Shah</h4><div class="role">Graduate Student</div>
+          <details><summary>Read bio</summary><p>Nirav is a Ph.D. candidate in the Genetics and Genomics program, where he investigates the genetic architecture of complex traits and the ancestral history of admixed individuals with biobank data, as well as the genetics of PTSD as member of the Psychiatric Genomics Consortium. Before starting graduate school, he worked as a computational biologist in a Duke spinoff biotech startup in North Carolina. In his free time, he loves to explore the outdoors, and enjoys hiking, swimming and reading.</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Pragati.jpg" alt="Pragati Kore" /></div>
+        <div class="body"><h4>Pragati Kore</h4><div class="role">Graduate Student</div>
+          <details><summary>Read bio</summary><p>Pragati is a PhD student in the Genetics & Genomics program at Baylor College of Medicine. She is broadly interested in developing and applying approaches to study rare variants with the incorporation of admixed populations. She grew up in Austin, Texas, and graduated from UT Austin with a BS in Biochemistry. Following her bachelor’s degree, she worked at the Center for Advanced Genomics Technology at the Icahn School of Medicine at Mount Sinai as an Associate Researcher. Outside of the lab, she enjoys attending concerts, traveling, and trying new recipes in the kitchen!</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Jessica.png" alt="Jessica Honorato Mauer" /></div>
+        <div class="body"><h4>Jessica Honorato Mauer</h4><div class="role">Bioinformatics Analyst</div>
+          <details><summary>Read bio</summary><p>Jessica was a former visiting Master's student in the Atkinson Lab, who recently returned as a bioinformatics analyst! They graduated from Universidade Federal de São Paulo, Brazil in 2019 with a BSc. in Biomedical Science, and in 2022 with a MSc. in Human Genetics/Bioinformatics. Jessica is interested in facilitatig the study of underrepresented populations in genetics research and improving disease risk prediction for heterogeneous ancestry/admixed populations. Outside of the lab, they enjoy playing games, drawing, and playing guitar.</p></details>
+        </div>
+      </article>
+    </div>
+
+    <div class="subhead reveal">Former Members and Friends of the Lab</div>
+    <div class="grid alumni reveal">
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Aishi.jpg" alt="Aishi Ayyanathan" /></div>
+        <div class="body"><h4>Aishi Ayyanathan</h4><div class="role">Undergraduate</div>
+          <details><summary>Read bio</summary><p>Aishi is an undergraduate student from Rice University who is majoring in biology and sociology. She is currently working on running genome-wide association studies for the All of Us dataset, in order to evaluate the performance of various genetic inference algorithms across population definitions. Broadly, she is interested in leveraging large-scale datasets to increase the utility of genomics research for translation. Outside of the lab, she enjoys crocheting and playing Anagrams.</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Amira.jpg" alt="Amira Ellison" /></div>
+        <div class="body"><h4>Amira Ellison</h4><div class="role">Former Post-baccalaureate Scholar</div>
+          <details><summary>Read bio</summary><p>Amira was a post-baccalaureate student in the Human Genome Sequencing Center Pre-Graduate Education and Training (PGET) program at Baylor College of Medicine. She completed her undergraduate study in Biology with a concentration in genetics at Pennsylvania State University in 2022. Amira’s prior research experience includes studying the gene arrangements of Klamath and Persimilis drosophila, specifically focusing on their breakpoint regions. Currently, she is working to improve polygenic risk score performance for lipoprotein(a), breast cancer, and epilepsy across ancestries.</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Shantal.jpg" alt="Shantal Taylor" /></div>
+        <div class="body"><h4>Shantal Taylor</h4><div class="role">Former Post-baccalaureate Scholar</div>
+          <details><summary>Read bio</summary><p>Shantal is an undergraduate student majoring in Chemistry with a Biomedical focus at Prairie View A&M University, Texas. She is a member of the Texas Undergraduate Medical Academy and her university’s Honors Program, and works as a student researcher in our Cooperative Agricultural Research Center. She aspires to become a primary care physician and infectious disease researcher, and is interested in exploring the vector-transmitted diseases prevalent in understudied, tropical regions. Shantal participated in the Baylor SMART program to expand her biomedical and health-related research knowledge, through which she worked in the Atkinson lab for one summer conducing a project exploring the population genetics of varied groups in the UK biobank.</p></details>
+        </div>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="dist/assets/img/LabHeadshots/Taotao.png" alt="Taotao Tan" /></div>
+        <div class="body"><h4>Taotao Tan</h4><div class="role">Former Bioinformatics Analyst</div>
+          <details><summary>Read bio</summary><p>Taotao completed his bachelor's and master’s degree in biology, and then joined the Atkinson lab as a bioinformatics analyst in 2021. His primary focus of work revolved around the statistical development and application of GWAS methodologies for admixed populations. Starting in the fall of 2023, he is pursuing his Ph.D. in the Quantitative and Computational Biosciences program at Baylor College of Medicine. In his spare time, he enjoys playing video games and the electric guitar.</p></details>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICATIONS -->
+<section id="pubs">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Select Publications</h2>
+    </div>
+    <p class="pub-note reveal">Given our lab's high level of productivity, publications are no longer being actively updated. For the most complete and up to date list, see Dr. Atkinson's <a href="https://scholar.google.com/citations?user=NCfvK4UAAAAJ&hl=en">Google Scholar page</a>.</p>
+    <div class="reveal">
+      <div class="pub"><div class="yr">2023</div><div class="cite">Ragsdale AP, Weaver TD, <u>Atkinson EG</u>, Hoal EG, Möller M, Henn BM, Gravel S. (2023) A weakly structured stem for human origins in Africa. <i>Nature.</i> <a href="https://doi.org/10.1038/s41586-023-06055-y">[Online]</a> <a href="https://www.nytimes.com/2023/05/17/science/human-origins-africa.html">[In popular press]</a></div></div>
+      <div class="pub"><div class="yr">2023</div><div class="cite">Taotao Tan &amp; <u>Atkinson EG</u>. (2023) Strategies for the Genomic Analysis of Admixed Populations. <i>Annual Review of Biomedical Data Science</i>, 53:195–204. <a href="https://doi.org/10.1146/annurev-biodatasci-020722-014310">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2023</div><div class="cite"><u>Atkinson EG</u>. (2023) Estimation of cross-ancestry genetic correlations within ancestry tracts of admixed samples. <i>Nature Genetics</i>, 55, 527–529. <a href="https://doi.org/10.1038/s41588-023-01325-x">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2023</div><div class="cite"><u>Atkinson EG</u>, Bianchi SB, Ye GY, et al. (2023) Cross-ancestry genomic research: time to close the gap. <i>Neuropsychopharmacology.</i>, 47, 1737–1738. <a href="https://doi.org/10.1038/s41386-022-01365-7">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2023</div><div class="cite">Majara L, Kalungi A, Koen N, … <u>Atkinson EG</u>, Martin A. (2023). Low and differential polygenic score generalizability among African populations due largely to genetic diversity. <i>Human Genetics and Genomics Advances.</i>, 4(2) 100184. <a href="https://doi.org/10.1016/j.xhgg.2023.100184">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2023</div><div class="cite">Atkinson JG &amp; <u>Atkinson EG</u>. (2023) Machine Learning and Health Care: Potential Benefits and Issues. <i>Journal of Ambulatory Care Management</i>, 55:527-529. <a href="https://doi.org/10.1097/JAC.0000000000000453">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2022</div><div class="cite"><u>Atkinson EG</u>, Bianchi SB, Ye GY, et al. (2022) Genetic structure correlates with ethnolinguistic diversity in eastern and southern Africa. <i>American Journal of Human Genetics.</i>, 109(9) 1667-1679. <a href="https://doi.org/10.1016/j.ajhg.2022.07.013">[Online]</a> <a href="https://www.ashg.org/ajhg/inside-ajhg-with-elizabeth-g-atkinson/">[In popular press]</a></div></div>
+      <div class="pub"><div class="yr">2022</div><div class="cite">Trubetskoy V, Pardiñas AF, Qi T, et al. (2022) Mapping genomic loci implicates genes and synaptic biology in schizophrenia. <i>Nature.</i>, 604, 502–508. <a href="https://doi.org/10.1038/s41586-022-04434-5">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2022</div><div class="cite"><u>Atkinson EG</u>, Choquet H, Khor CC, &amp; Wonkam A. (2022). Improving equity in human genomics research. <i>Communications Biology.</i>, 5(1). <a href="https://doi.org/10.1038/s42003-022-03236-9">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2021</div><div class="cite"><u>Atkinson EG</u>, Maihofer AX, Kanai M, Martin AR, Karczewski KJ, Santoro ML, et al. (2021) Tractor uses local ancestry to enable the inclusion of admixed individuals in GWAS and to boost power. <i>Nature Genetics</i>, 53:195–204. <a href="https://www.nature.com/articles/s41588-020-00766-y">[Online]</a> <a href="https://www.massgeneral.org/news/press-release/Novel-software-tool-facilitates-inclusion-of-individuals-of-diverse-ancestry-in-large-scale-genetics-studies">[Press release]</a> <a href="https://mgriblog.org/2021/06/01/new-software-promotes-inclusivity-in-genetic-research-and-strengthens-study-results/">[In the news]</a></div></div>
+      <div class="pub"><div class="yr">2018</div><div class="cite"><u>Atkinson EG</u>, Audesse AJ, Palacios J, Smith GT, Bobo DM, Webb AE, Ramachandran S, Henn BM (2018). No Evidence for Recent Selection at FOXP2 among Diverse Human Populations. <i>Cell</i>, 174(6): 1424-1435. PMC6128738. <a href="https://www.sciencedirect.com/science/article/pii/S0092867418308511">[Online]</a> <a href="https://www.nature.com/articles/s41576-018-0046-6">[In the news]</a> <a href="https://www.the-scientist.com/news-opinion/language-gene-dethroned-64608">[In popular press]</a></div></div>
+      <div class="pub"><div class="yr">2021</div><div class="cite">Camarena B, <u>Atkinson EG</u>, Baker M, Becerra-Palars C, Chibnik LB, Escamilla-Orozco R, Jiménez-Pavón J, Koenig Z, Márquez-Luna C, Martin AR, Morales-Cedillo IP, Olivares AM, Ortega-Ortiz H, Rodriguez-Ramírez AM, Saracco-Alvarez R, Basaldua RE, Sena BF, Koenen KC. (2021) Neuropsychiatric Genetics of Psychosis in the Mexican Population: A Genome-Wide Association Study Protocol for Schizophrenia, Schizoaffective, and Bipolar Disorder Patients and Controls. <i>Complex Psychiatry</i>. <a href="https://www.karger.com/Article/Abstract/518926">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2021</div><div class="cite">Gopalan S, <u>Atkinson EG</u>, Buck LT, Weaver TD, Henn BM. (2021) Inferring archaic introgression from hominin genetic data. <i>Evolutionary Anthropology</i>. <a href="https://onlinelibrary.wiley.com/doi/full/10.1002/evan.21895">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2021</div><div class="cite">Martin AR, <u>Atkinson EG</u>, Chapman SB, Stevenson A, Stroud RE, et al. (2021) Low-coverage sequencing cost-effectively detects known and novel variation in underrepresented populations. <i>Am. J. Hum. Genet.</i>, 108:656-668. <a href="https://www.sciencedirect.com/science/article/abs/pii/S0002929721000963">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2021</div><div class="cite">The COVID-19 Host Genetics Initiative. (2021) Mapping the human genetic architecture of COVID-19 by worldwide meta-analysis. <i>Nature</i>. <a href="https://doi.org/10.1101/2021.03.10.21252820">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2021</div><div class="cite">Wendt FR, Pathak GA, Overstreet C, Tylee DS, Gelernter J, <u>Atkinson EG</u>, Polimanti R. (2021) Characterizing the effect of background selection on the polygenicity of brain-related traits. <i>Genomics</i>, 113:111–119. <a href="https://www.sciencedirect.com/science/article/abs/pii/S088875432032036X">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2021</div><div class="cite">Guindo-Martínez M, Amela R, Bonàs-Guarch S, Puiggròs M, Salvoro C, Miguel-Escalada I, et al. (2021) The impact of non-additive genetic associations on age-related complex diseases. <i>Nature Communications</i>, 12:2436. <a href="https://www.nature.com/articles/s41467-021-21952-4">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2020</div><div class="cite">Scelza BA, <u>Atkinson EG</u>, Prall S, McElreath R, Sheehama J, Henn BM. (2020) The ethics and logistics of field-based genetic paternity studies. <i>Evol Hum Sci</i>, 2020;2:1–36. <a href="https://www.cambridge.org/core/journals/evolutionary-human-sciences/article/ethics-and-logistics-of-fieldbased-genetic-paternity-studies/1D20DEC299596C012301CF9AC949970D">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2020</div><div class="cite">Scelza BA, Prall SP, Swinford N, Gopalan S, <u>Atkinson EG</u>, McElreath R, et al. (2020) High rate of extrapair paternity in a human population demonstrates diversity in human reproductive strategies. <i>Science Advances</i>, 6:eaay6195. <a href="https://doi.org/10.1126/sciadv.aay6195">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2019</div><div class="cite">Nievergelt CM, Maihofer AX, Klengel T, <u>Atkinson EG</u>, et al. (2019). International meta-analysis of PTSD genome-wide association studies identifies sex- and ancestry-specific genetic risk loci. <i>Nature Communications</i>, 10:4558. <a href="https://www.nature.com/articles/s41467-019-12576-w">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2018</div><div class="cite">Sugden LA, <u>Atkinson EG</u>, Fischer AP, Rong S, Henn BM, Ramachandran S. (2018) Localization of adaptive variants in human genomes using averaged one-dependence estimation. <i>Nature Communications</i>, 9:703. <a href="https://doi.org/10.1038/s41467-018-03100-7">[Online]</a></div></div>
+      <div class="pub"><div class="yr">2017</div><div class="cite">Martin AR, Lin M, Granka JM, Myrick JW, Liu X, Sockell A, <u>Atkinson EG</u>, Werely CJ, Möller M, Sandhu MS, et al. (2017). An Unexpectedly Complex Architecture for Skin Pigmentation in Africans. <i>Cell</i> 171, 1340–1353.e14. <a href="http://www.cell.com/cell/abstract/S0092-8674(17)31324-7">[Online]</a> <a href="https://www.broadinstitute.org/news/skin-pigmentation-far-more-genetically-complex-previously-thought">[In the media]</a> <a href="https://www.nationalgeographic.com/magazine/2018/04/race-twins-black-white-biggs/">[Related popular press]</a></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWS -->
+<section id="news">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow">Lab life</p>
+      <h2>Recent Lab Events</h2>
+    </div>
+    <div class="gallery reveal">
+      <figure tabindex="0" data-cap="The Atkinson lab had a lab outing to an escape room in July 2024. We escaped with almost 7 minutes remaining!"><img src="dist/assets/img/events/escape.jpg" alt="The Atkinson lab had a lab outing to an escape room in July 2024. We escaped with almost 7 minutes remaining!" /></figure>
+      <figure tabindex="0" data-cap="August 2024 - We said goodbye to SMART summer student Shantal with a lab lunch. Best of luck!"><img src="dist/assets/img/events/IMG_9945.jpg" alt="August 2024 - We said goodbye to SMART summer student Shantal with a lab lunch. Best of luck!" /></figure>
+      <figure tabindex="0" data-cap="July 2024 - An ice cream outing to welcome Shantal, our summer SMART student!"><img src="dist/assets/img/events/IMG_2458.jpg" alt="July 2024 - An ice cream outing to welcome Shantal, our summer SMART student!" /></figure>
+      <figure tabindex="0" data-cap="June 2024 - The Atkinson lab had a lab outing to St. Arnold's Brewery to celebrate the start of summer!"><img src="dist/assets/img/events/IMG_1892.jpg" alt="June 2024 - The Atkinson lab had a lab outing to St. Arnold's Brewery to celebrate the start of summer!" /></figure>
+      <figure tabindex="0" data-cap="The Atkinson lab had a wonderful time at ASHG 2022! Thanks to everyone who attended our abstracts and we can wait to see you all again next year!"><img src="dist/assets/img/events/ASHG2022-labphoto.jpg" alt="The Atkinson lab had a wonderful time at ASHG 2022! Thanks to everyone who attended our abstracts and we can wait to see you all again next year!" /></figure>
+      <figure tabindex="0" data-cap="December 2023 - The Atkinson lab had a fancy dinner out to celebrate the end of the year."><img src="dist/assets/img/events/IMG_1515.jpg" alt="December 2023 - The Atkinson lab had a fancy dinner out to celebrate the end of the year." /></figure>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow">Get in touch</p>
+      <h2>Contact</h2>
+    </div>
+    <div class="contact-grid reveal">
+      <div class="join-card">
+        <h3>Interested in joining our group?</h3>
+        <p>Candidates with training and interest in statistical genetics, population genetics, and/or psychiatric genetics across ancestries please email Dr. Atkinson.</p>
+        <p><a href="mailto:elizabeth.atkinson@bcm.edu">elizabeth.atkinson@bcm.edu</a></p>
+      </div>
+      <div class="contact-meta">
+        <div class="item"><div class="lbl">Address</div><p>Elizabeth Atkinson<br/>1 Baylor Plaza<br/>Taub Research Building, Rooms 621 (office) and 619 (lab)<br/>Department of Molecular and Human Genetics<br/>Baylor College of Medicine<br/>Houston, TX 77030</p></div>
+        <div class="item"><div class="lbl">GitHub</div><p><a href="https://github.com/Atkinson-Lab">https://github.com/Atkinson-Lab</a></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap footer-in">
+    <div>Copyright &copy; 2021 - Atkinson lab</div>
+  </div>
+</footer>
+
+<!-- lightbox -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button id="lbClose" aria-label="Close">&times;</button>
+  <img id="lbImg" src="" alt="" />
+  <p id="lbCap"></p>
+</div>
+
+<script>
+// year
+
+// nav scroll state
+var nav = document.getElementById('nav');
+function onScroll(){ nav.classList.toggle('scrolled', window.scrollY > 40); }
+onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+
+// mobile menu
+var mb = document.getElementById('menuBtn'), menu = document.getElementById('navmenu');
+mb.addEventListener('click', function(){
+  var open = menu.classList.toggle('open');
+  mb.setAttribute('aria-expanded', open);
+});
+menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ menu.classList.remove('open'); mb.setAttribute('aria-expanded','false'); }); });
+
+// ancestry-tract karyogram generator (the signature)
+var TR = ['--t1','--t2','--t3','--t4','--t5','--t6'];
+function buildChrom(el, n, minH){
+  var widths = [], total = 0;
+  for(var i=0;i<n;i++){ var w = Math.random()*3+1; widths.push(w); total+=w; }
+  var last=-1;
+  for(var j=0;j<n;j++){
+    var s = document.createElement('span');
+    var c; do{ c = Math.floor(Math.random()*TR.length); } while(c===last); last=c;
+    s.style.background = 'var('+TR[c]+')';
+    s.style.width = (widths[j]/total*100)+'%';
+    el.appendChild(s);
+  }
+}
+var karyo = document.getElementById('karyo');
+if(karyo){ for(var r=0;r<7;r++){ var row=document.createElement('div'); row.className='chrom'; buildChrom(row, 5+Math.floor(Math.random()*5)); karyo.appendChild(row); } }
+var d1 = document.getElementById('div1'); if(d1){ buildChrom(d1, 24); }
+
+// lightbox
+var lb=document.getElementById('lb'), lbImg=document.getElementById('lbImg'), lbCap=document.getElementById('lbCap');
+function openLb(src,cap){ lbImg.src=src; lbImg.alt=cap; lbCap.textContent=cap; lb.classList.add('open'); }
+function closeLb(){ lb.classList.remove('open'); lbImg.src=''; }
+document.querySelectorAll('.gallery figure').forEach(function(f){
+  var img=f.querySelector('img'), cap=f.getAttribute('data-cap');
+  f.addEventListener('click', function(){ openLb(img.src, cap); });
+  f.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLb(img.src, cap); } });
+});
+document.getElementById('lbClose').addEventListener('click', closeLb);
+lb.addEventListener('click', function(e){ if(e.target===lb) closeLb(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb(); });
+
+// scroll reveal
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+}, {threshold:.12});
+document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+</script>
+</body>
+</html>
