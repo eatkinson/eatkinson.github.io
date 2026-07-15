@@ -119,7 +119,8 @@ section{padding:88px 0;}
 /* research */
 .track{display:grid;grid-template-columns:340px 1fr;gap:44px;align-items:center;padding:38px 0;border-top:1px solid var(--line);}
 .track:first-of-type{border-top:0;}
-.track img{border-radius:12px;border:1px solid var(--line);background:#fff;width:100%;aspect-ratio:16/11;object-fit:contain;padding:14px;}
+.track img{border-radius:12px;border:1px solid var(--line);background:#fff;width:100%;aspect-ratio:16/11;object-fit:cover;}
+.track img.logo{width:auto;max-width:360px;height:auto;aspect-ratio:auto;object-fit:contain;display:block;margin:0 auto;padding:16px 20px;}
 .track .n{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--brand-2);letter-spacing:.12em;}
 .track h3{font-size:24px;margin:10px 0 12px;}
 .track p{color:var(--muted);margin:0;font-size:16px;}
@@ -300,7 +301,7 @@ footer.site a{color:rgba(255,255,255,.8);}
       <h2>Research Areas</h2>
     </div>
     <div class="track reveal">
-      <div class="media"><img src="dist/assets/img/portfolio/thumbnails/TractorIcon.jpg" alt="Tractor local-ancestry method icon" /></div>
+      <div class="media"><img class="logo" src="dist/assets/img/portfolio/thumbnails/TractorIcon.jpg" alt="Tractor local-ancestry method icon" /></div>
       <div><div class="n">01 / METHODS</div><h3>Method Development for Ancestry-Aware Genomic Analyses</h3><p>Nearly 80% of genome-wide association studies (GWAS) to date have focused on individuals of European ancestry. This has created methodological gaps in the analysis of admixed individuals—those with genomic contributions from multiple ancestral backgrounds—whose genomes present additional modeling challenges. Our lab develops statistical tools specifically designed to improve the analysis of complex traits in admixed populations, with the goal of enabling broader applicability of genomic findings, particularly in the context of mental health genetics.</p></div>
     </div>
     <div class="track reveal">
